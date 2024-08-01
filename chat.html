@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>צ'אט סוכנים</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .chat-box {
+            height: 500px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            overflow-y: scroll;
+            margin-bottom: 20px;
+            background-color: #e5ddd5;
+        }
+        .message {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 7.5px;
+            font-size: 18px;
+            max-width: 60%;
+            position: relative;
+            background-color: #dcf8c6;
+            color: black;
+        }
+        .message.received {
+            background-color: #ffffff;
+            margin-right: auto;
+            margin-left: 0;
+        }
+        .message.sent {
+            background-color: #dcf8c6;
+            margin-left: auto;
+            margin-right: 0;
+        }
+        .message .username {
+            font-weight: bold;
+        }
+        .message .delete-btn {
+            color: red;
+            cursor: pointer;
+            margin-left: 10px;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: none;
+        }
+        .message.sent:hover .delete-btn {
+            display: block;
+        }
+        .message img, .message video {
+            max-width: 100%;
+            display: block;
+            margin-top: 10px;
+            border-radius: 7.5px;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.9);
+        }
+        .modal-content {
+            margin: auto;
+            display: block;
+            width: 80%;
+            max-width: 700px;
+        }
+        .close {
+            position: absolute;
+            top: 20px;
+            right: 35px;
+            color: #fff;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover,
+        .close:focus {
+            color: #bbb;
+            text-decoration: none;
+        }
+        form {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            background-color: #fff;
+            padding: 10px;
+            border-radius: 20px;
+            box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+            margin: 10px 0;
+        }
+        textarea {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 20px;
+            resize: none;
+            margin: 0 10px;
+            height: 40px;
+            width: calc(100% - 160px);
+        }
+        input[type="file"] {
+            display: none;
+        }
+        button, label[for="mediaInput"] {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            margin: 0 5px;
+            text-align: center;
+            line-height: 40px;
+            font-size: 20px;
+        }
+        button#submitButton {
+            background-color: #25d366;
+        }
+        button:disabled {
+            background-color: #ccc;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="logo.png" alt="שירות חשאי" class="logo">
+        <nav>
+            <ul>
+                <li><a href="index.html">דף בית</a></li>
+                <li><a href="operations.html">מבצעים</a></li>
+                <li><a href="agents.html">סוכנים</a></li>
+                <li><a href="wanted.html">מבוקשים</a></li>
+                <li><a href="chat.html">צ'אט</a></li>
+                <li><a href="update_operation.html">עדכון מבצע</a></li>
+            </ul>
+        </nav>
+        <h2>צ'אט סוכנים</h2>
+        <div class="chat-box" id="chatBox"></div>
+        <form id="chatForm">
+            <input type="hidden" id="username" name="username" required>
+            <textarea id="message" name="message" rows="1" placeholder="הקלד הודעה כאן..."></textarea>
+            <label for="mediaInput" id="mediaButton">&#x1F4CE;</label>
+            <input type="file" id="mediaInput" name="media" accept="image/*,video/*">
+            <button id="recordButton" type="button">&#x1F3A4;</button>
+            <button id="submitButton" type="submit">&#x27A4;</button>
+        </form>
+        <audio id="audioPlayback" controls style="display: none;"></audio>
+
+        <!-- The Modal -->
+        <div id="myModal" class="modal">
+            <span class="close" id="closeModal">&times;</span>
+            <img class="modal-content" id="imgModal">
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            let messages = JSON.parse(localStorage.getItem('chatMessages')) || [];
+            let lastMessageCount = messages.length;
+            let isRecording = false;
+            let audioBlob = null;
+
+            const loggedInAgent = JSON.parse(localStorage.getItem('loggedInAgent'));
+            if (loggedInAgent) {
+                document.getElementById('username').value = `${loggedInAgent.firstName} ${loggedInAgent.lastName}`;
+            } else {
+                alert('עליך להתחבר תחילה');
+                window.location.href = 'login.html';
+            }
+
+            function loadMessages() {
+                const chatBox = document.getElementById('chatBox');
+                chatBox.innerHTML = '';
+                messages.forEach((message, index) => {
+                    const messageDiv = document.createElement('div');
+                    messageDiv.classList.add('message');
+                    messageDiv.classList.add(message.username === `${loggedInAgent.firstName} ${loggedInAgent.lastName}` ? 'sent' : 'received');
+
+                    const usernameSpan = document.createElement('span');
+                    usernameSpan.classList.add('username');
+                    usernameSpan.textContent = message.username + ": ";
+
+                    const messageSpan = document.createElement('span');
+                    messageSpan.textContent = message.message;
+
+                    if (message.username === `${loggedInAgent.firstName} ${loggedInAgent.lastName}`) {
+                        const deleteBtn = document.createElement('span');
+                        deleteBtn.classList.add('delete-btn');
+                        deleteBtn.textContent = 'מחק';
+                        deleteBtn.onclick = () => deleteMessage(index);
+                        messageDiv.appendChild(deleteBtn);
+                    }
+
+                    messageDiv.appendChild(usernameSpan);
+                    messageDiv.appendChild(messageSpan);
+
+                    if (message.image) {
+                        const image = document.createElement('img');
+                        image.src = message.image;
+                        image.onclick = () => openModal(image.src);
+                        messageDiv.appendChild(image);
+                    }
+
+                    if (message.video) {
+                        const video = document.createElement('video');
+                        video.controls = true;
+                        video.src = message.video;
+                        messageDiv.appendChild(video);
+                    }
+
+                    if (message.audio) {
+                        const audio = document.createElement('audio');
+                        audio.controls = true;
+                        audio.src = message.audio;
+                        messageDiv.appendChild(audio);
+                    }
+
+                    chatBox.appendChild(messageDiv);
+                });
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+
+            function saveMessage(username, message, image, audio, video) {
+                messages.push({ username, message, image, audio, video });
+                localStorage.setItem('chatMessages', JSON.stringify(messages));
+                loadMessages();
+            }
+
+            function deleteMessage(index) {
+                messages.splice(index, 1);
+                localStorage.setItem('chatMessages', JSON.stringify(messages));
+                loadMessages();
+            }
+
+            document.getElementById('chatForm').addEventListener('submit', function(event) {
+                event.preventDefault();
+
+                const username = document.getElementById('username').value.trim();
+                const message = document.getElementById('message').value.trim();
+                const mediaInput = document.getElementById('mediaInput');
+                let image = null;
+                let video = null;
+                let audio = null;
+
+                if (mediaInput.files && mediaInput.files[0]) {
+                    const file = mediaInput.files[0];
+                    const fileType = file.type.split('/')[0];
+
+                    if (fileType === 'image') {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            image = e.target.result;
+                            saveMessage(username, message, image, null, null);
+                        }
+                        reader.readAsDataURL(file);
+                    } else if (fileType === 'video') {
+                        if (file.size <= 60 * 1024 * 1024) {
+                            const reader = new FileReader();
+                            reader.onload = function(e) {
+                                video = e.target.result;
+                                saveMessage(username, message, null, null, video);
+                            }
+                            reader.readAsDataURL(file);
+                        } else {
+                            alert('הסרטון חייב להיות עד דקה אחת.');
+                        }
+                    }
+                } else if (audioBlob) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        audio = e.target.result;
+                        saveMessage(username, '', null, audio, null);
+                        audioBlob = null; // Reset audioBlob after sending
+                    };
+                    reader.readAsDataURL(audioBlob);
+                } else {
+                    saveMessage(username, message, null, null, null);
+                }
+
+                document.getElementById('message').value = '';
+                document.getElementById('mediaInput').value = '';
+            });
+
+            function showUnreadMessagesAlert() {
+                const lastReadMessageIndex = localStorage.getItem('lastReadMessageIndex') || 0;
+                const unreadMessagesCount = messages.length - lastReadMessageIndex;
+
+                if (unreadMessagesCount > 0) {
+                    alert(`יש לך ${unreadMessagesCount} הודעות חדשות שלא נקראו.`);
+                }
+
+                localStorage.setItem('lastReadMessageIndex', messages.length);
+            }
+
+            function checkForNewMessages() {
+                const currentMessageCount = messages.length;
+                if (currentMessageCount > lastMessageCount) {
+                    alert(`יש לך ${currentMessageCount - lastMessageCount} הודעות חדשות.`);
+                    lastMessageCount = currentMessageCount;
+                    loadMessages();
+                }
+            }
+
+            setInterval(() => {
+                messages = JSON.parse(localStorage.getItem('chatMessages')) || [];
+                checkForNewMessages();
+            }, 5000);
+
+            let mediaRecorder;
+            let audioChunks = [];
+
+            document.getElementById('recordButton').addEventListener('click', async () => {
+                if (isRecording) {
+                    mediaRecorder.stop();
+                    isRecording = false;
+                    document.getElementById('recordButton').style.backgroundColor = '#007bff'; // חזרה לצבע הכחול
+                } else {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(stream);
+                    mediaRecorder.start();
+                    isRecording = true;
+                    document.getElementById('recordButton').style.backgroundColor = '#ff0000'; // שינוי לצבע אדום
+
+                    mediaRecorder.ondataavailable = event => {
+                        audioChunks.push(event.data);
+                    };
+
+                    mediaRecorder.onstop = () => {
+                        audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                        audioChunks = [];
+                    };
+                }
+            });
+
+            const modal = document.getElementById('myModal');
+            const modalImg = document.getElementById('imgModal');
+            const closeModalBtn = document.getElementById('closeModal');
+
+            function openModal(src) {
+                modal.style.display = 'block';
+                modalImg.src = src;
+            }
+
+            closeModalBtn.onclick = function() {
+                modal.style.display = 'none';
+            }
+
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.style.display = 'none';
+                }
+            }
+
+            loadMessages();
+            showUnreadMessagesAlert();
+        });
+    </script>
+</body>
+</html>

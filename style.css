@@ -1,0 +1,197 @@
+/* סגנון כללי לכל האתר */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: url('DALL·E 2024-07-30 16.01.51 - A futuristic, high-tech background similar to the uploaded image, extended vertically to be very long. It should feature a digital interface with glow.webp') repeat-y center top;
+    background-size: cover;
+    color: #E0E0E0; /* צבע טקסט בהיר */
+}
+
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: rgba(0, 0, 0, 0.7); /* צבע רקע כהה לתיבה עם שקיפות */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    text-align: right;
+    position: relative;
+}
+
+.logo, .logo-small, .logo-large {
+    display: block;
+    margin: 0 auto;
+    width: 150px; /* גודל הלוגו */
+}
+
+nav ul {
+    list-style-type: none;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    background-color: #333;
+}
+
+nav ul li {
+    margin: 0 15px;
+}
+
+nav ul li a {
+    color: #00FFFF; /* צבע תכלת ניאון */
+    text-decoration: none;
+    padding: 10px 20px;
+    display: block;
+    font-size: 2em; /* טקסט גדול */
+}
+
+nav ul li a:hover {
+    background-color: #555;
+}
+
+h2 {
+    text-align: center;
+    color: #00FFFF; /* צבע תכלת ניאון */
+    font-size: 5em; /* טקסט ענק */
+}
+
+p, h3 {
+    font-size: 18px;
+    color: #E0E0E0; /* צבע טקסט בהיר */
+}
+
+.large-text {
+    font-size: 25px; /* גודל הטקסט המיוחד */
+    margin-right: 20px;
+    display: block;
+}
+
+/* סגנון לתמונות המבוקשים */
+.large-text img {
+    width: 100px; /* גודל תמונות המבוקשים */
+    height: auto;
+    margin: 10px;
+    display: inline-block;
+}
+
+/* סגנון לטפסים */
+form {
+    max-width: 400px;
+    margin: 0 auto;
+    text-align: left;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    color: #00FFFF; /* צבע תכלת ניאון */
+    font-size: 3em; /* טקסט ענק */
+}
+
+input[type="text"], input[type="password"], textarea, input[type="number"], input[type="file"] {
+    width: 120%;
+    padding: 8px;
+    margin-bottom: 20px;
+    border: 1px solid #333;
+    border-radius: 4px;
+    background-color: #333;
+    color: #E0E0E0; /* צבע טקסט בהיר */
+    font-size: 2em; /* טקסט גדול */
+}
+
+button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    background-color: #333;
+    color: #E0E0E0; /* צבע טקסט בהיר */
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 2em; /* טקסט גדול */
+}
+
+button:hover {
+    background-color: #555;
+}
+
+ul {
+    padding: 0;
+}
+
+ul li {
+    list-style-type: none;
+    margin-bottom: 10px;
+}
+
+ul li a {
+    color: #00FFFF; /* צבע תכלת ניאון */
+    text-decoration: none;
+    font-size: 2em; /* טקסט גדול */
+}
+
+ul li a:hover {
+    text-decoration: underline;
+}
+
+/* סרגל חיפוש */
+#search-bar {
+    padding: 8px;
+    margin-left: 20px;
+    border: 1px solid #333;
+    border-radius: 4px;
+    background-color: #333;
+    color: #E0E0E0; /* צבע טקסט בהיר */
+    font-size: 2em; /* טקסט גדול */
+}
+
+/* מדיה קווריז לעיצוב רספונסיבי */
+@media (max-width: 600px) {
+    .container {
+        padding: 10px;
+    }
+    .logo, .logo-small, .logo-large {
+        width: 100%;
+        height: auto;
+    }
+    nav ul li {
+        margin: 0 10px;
+    }
+    nav ul li a {
+        font-size: 1.5em;
+    }
+    h2 {
+        font-size: 3em;
+    }
+    label {
+        font-size: 2em;
+    }
+    input[type="text"], input[type="password"], textarea, input[type="number"], input[type="file"], button {
+        font-size: 1.5em;
+    }
+}
+
+.top-links {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: rgba(0, 0, 0, 0.7); /* צבע רקע כהה לתיבה עם שקיפות */
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+.top-links a {
+    margin-left: 10px;
+    font-size: 14px;
+    color: blue;
+}
+
+.profile-link {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background-color: rgba(0, 0, 0, 0.7); /* צבע רקע כהה לתיבה עם שקיפות */
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 14px;
+    color: blue;
+}

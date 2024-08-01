@@ -1,0 +1,210 @@
+document.addEventListener('DOMContentLoaded', function() {
+    let messages = JSON.parse(localStorage.getItem('chatMessages')) || [];
+    let lastMessageCount = messages.length;
+
+    const loggedInAgent = JSON.parse(localStorage.getItem('loggedInAgent'));
+    if (loggedInAgent) {
+        document.getElementById('username').value = `${loggedInAgent.firstName} ${loggedInAgent.lastName}`;
+        document.getElementById('profileLink').style.display = 'block';
+        document.getElementById('editProfileLink').href = `agent_profile.html?index=${loggedInAgent.index}`;
+    } else {
+        alert('עליך להתחבר תחילה');
+        window.location.href = 'login.html';
+    }
+
+    function loadMessages() {
+        const chatBox = document.getElementById('chatBox');
+        chatBox.innerHTML = '';
+        messages.forEach((message, index) => {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message');
+            messageDiv.classList.add(message.username === `${loggedInAgent.firstName} ${loggedInAgent.lastName}` ? 'sent' : 'received');
+
+            const usernameSpan = document.createElement('span');
+            usernameSpan.classList.add('username');
+            usernameSpan.textContent = message.username + ": ";
+
+            const messageSpan = document.createElement('span');
+            messageSpan.textContent = message.message;
+
+            if (message.username === `${loggedInAgent.firstName} ${loggedInAgent.lastName}`) {
+                const deleteBtn = document.createElement('span');
+                deleteBtn.classList.add('delete-btn');
+                deleteBtn.textContent = 'מחק';
+                deleteBtn.onclick = () => deleteMessage(index);
+                messageDiv.appendChild(deleteBtn);
+            }
+
+            messageDiv.appendChild(usernameSpan);
+            messageDiv.appendChild(messageSpan);
+
+            if (message.image) {
+                const image = document.createElement('img');
+                image.src = message.image;
+                image.onclick = () => openModal(image.src);
+                messageDiv.appendChild(image);
+            }
+
+            if (message.video) {
+                const video = document.createElement('video');
+                video.controls = true;
+                video.src = message.video;
+                messageDiv.appendChild(video);
+            }
+
+            if (message.audio) {
+                const audio = document.createElement('audio');
+                audio.controls = true;
+                audio.src = message.audio;
+                messageDiv.appendChild(audio);
+            }
+
+            chatBox.appendChild(messageDiv);
+        });
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function saveMessage(username, message, image, audio, video) {
+        messages.push({ username, message, image, audio, video });
+        localStorage.setItem('chatMessages', JSON.stringify(messages));
+        loadMessages();
+    }
+
+    function deleteMessage(index) {
+        messages.splice(index, 1);
+        localStorage.setItem('chatMessages', JSON.stringify(messages));
+        loadMessages();
+    }
+
+    document.getElementById('chatForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const username = document.getElementById('username').value.trim();
+        const message = document.getElementById('message').value.trim();
+        const mediaInput = document.getElementById('mediaInput');
+        let image = null;
+        let video = null;
+
+        if (mediaInput.files && mediaInput.files[0]) {
+            const file = mediaInput.files[0];
+            const fileType = file.type.split('/')[0];
+
+            if (fileType === 'image') {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    image = e.target.result;
+                    saveMessage(username, message, image, null, null);
+                }
+                reader.readAsDataURL(file);
+            } else if (fileType === 'video') {
+                if (file.size <= 60 * 1024 * 1024) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        video = e.target.result;
+                        saveMessage(username, message, null, null, video);
+                    }
+                    reader.readAsDataURL(file);
+                } else {
+                    alert('הסרטון חייב להיות עד דקה אחת.');
+                }
+            }
+        } else {
+            saveMessage(username, message, null, null, null);
+        }
+
+        document.getElementById('message').value = '';
+        document.getElementById('mediaInput').value = '';
+    });
+
+    function showUnreadMessagesAlert() {
+        const lastReadMessageIndex = localStorage.getItem('lastReadMessageIndex') || 0;
+        const unreadMessagesCount = messages.length - lastReadMessageIndex;
+
+        if (unreadMessagesCount > 0) {
+            alert(`יש לך ${unreadMessagesCount} הודעות חדשות שלא נקראו.`);
+        }
+
+        localStorage.setItem('lastReadMessageIndex', messages.length);
+    }
+
+    function checkForNewMessages() {
+        const currentMessageCount = messages.length;
+        if (currentMessageCount > lastMessageCount) {
+            alert(`יש לך ${currentMessageCount - lastMessageCount} הודעות חדשות.`);
+            lastMessageCount = currentMessageCount;
+            loadMessages();
+        }
+    }
+
+    setInterval(() => {
+        messages = JSON.parse(localStorage.getItem('chatMessages')) || [];
+        checkForNewMessages();
+    }, 5000);
+
+    let mediaRecorder;
+    let audioChunks = [];
+
+    document.getElementById('recordButton').addEventListener('click', async () => {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorder = new MediaRecorder(stream);
+        mediaRecorder.start();
+
+        mediaRecorder.ondataavailable = event => {
+            audioChunks.push(event.data);
+        };
+
+        mediaRecorder.onstop = () => {
+            const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+            const audioUrl = URL.createObjectURL(audioBlob);
+            const audioPlayback = document.getElementById('audioPlayback');
+            audioPlayback.src = audioUrl;
+            audioPlayback.style.display = 'block';
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const audioBase64 = e.target.result;
+                const username = document.getElementById('username').value.trim();
+                saveMessage(username, '', null, audioBase64, null);
+            };
+            reader.readAsDataURL(audioBlob);
+
+            audioChunks = [];
+        };
+
+        document.getElementById('recordButton').disabled = true;
+        document.getElementById('stopButton').disabled = false;
+    });
+
+    document.getElementById('stopButton').addEventListener('click', () => {
+        mediaRecorder.stop();
+        document.getElementById('recordButton').disabled = false;
+        document.getElementById('stopButton').disabled = true;
+    });
+
+    const modal = document.getElementById('myModal');
+    const modalImg = document.getElementById('imgModal');
+    const closeModalBtn = document.getElementById('closeModal');
+
+    function openModal(src) {
+        modal.style.display = 'block';
+        modalImg.src = src;
+    }
+
+    closeModalBtn.onclick = function() {
+        modal.style.display = 'none';
+    }
+
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = 'none';
+        }
+    }
+
+    document.getElementById('emojiButton').addEventListener('click', function() {
+        const messageInput = document.getElementById('message');
+        messageInput.value += '😊'; // לדוגמה, מוסיף אימוג'י של סמיילי
+    });
+
+    loadMessages();
+    showUnreadMessagesAlert();
+});

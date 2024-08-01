@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>פרופיל סוכן</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h2>פרופיל סוכן</h2>
+        <div id="agentDetails"></div>
+        <form id="passwordForm" style="display: none;">
+            <label for="password">סיסמה:</label>
+            <input type="password" id="password" name="password" required>
+            <br><br>
+            <button type="submit">אמת</button>
+        </form>
+        <form id="editForm" style="display: none;">
+            <label for="editFirstName">שם פרטי:</label>
+            <input type="text" id="editFirstName" name="editFirstName" required>
+            <br><br>
+            <label for="editLastName">שם משפחה:</label>
+            <input type="text" id="editLastName" name="editLastName" required>
+            <br><br>
+            <label for="editPassword">סיסמה חדשה:</label>
+            <input type="password" id="editPassword" name="editPassword" required>
+            <br><br>
+            <label for="confirmEditPassword">אשר סיסמה חדשה:</label>
+            <input type="password" id="confirmEditPassword" name="confirmEditPassword" required>
+            <br><br>
+            <button type="submit">שמור שינויים</button>
+        </form>
+        <button id="editButton">ערוך פרטים</button>
+    </div>
+    <script>
+        const loggedInAgent = JSON.parse(localStorage.getItem('loggedInAgent'));
+        if (!loggedInAgent) {
+            alert('עליך להתחבר תחילה');
+            window.location.href = 'login.html';
+        }
+        
+        const agents = JSON.parse(localStorage.getItem('agents')) || [];
+        const agent = agents.find(a => a.firstName === loggedInAgent.firstName);
+        const agentIndex = agents.indexOf(agent);
+        const agentDetails = document.getElementById('agentDetails');
+        const editForm = document.getElementById('editForm');
+        const passwordForm = document.getElementById('passwordForm');
+        const editButton = document.getElementById('editButton');
+
+        function displayAgentDetails() {
+            agentDetails.innerHTML = `
+                <p><strong>שם פרטי:</strong> ${agent.firstName}</p>
+                <p><strong>שם משפחה:</strong> ${agent.lastName}</p>
+            `;
+        }
+
+        editButton.addEventListener('click', function() {
+            passwordForm.style.display = 'block';
+            editButton.style.display = 'none';
+        });
+
+        passwordForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const password = document.getElementById('password').value;
+
+            if (password === agent.password) {
+                passwordForm.style.display = 'none';
+                editForm.style.display = 'block';
+                document.getElementById('editFirstName').value = agent.firstName;
+                document.getElementById('editLastName').value = agent.lastName;
+            } else {
+                alert('סיסמה שגויה');
+                editButton.style.display = 'block';
+                passwordForm.style.display = 'none';
+            }
+        });
+
+        editForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const firstName = document.getElementById('editFirstName').value.trim();
+            const lastName = document.getElementById('editLastName').value.trim();
+            const newPassword = document.getElementById('editPassword').value;
+            const confirmNewPassword = document.getElementById('confirmEditPassword').value;
+
+            if (newPassword !== confirmNewPassword) {
+                alert('הסיסמאות אינן תואמות');
+                return;
+            }
+
+            agent.firstName = firstName;
+            agent.lastName = lastName;
+            agent.password = newPassword;
+            agents[agentIndex] = agent;
+            localStorage.setItem('agents', JSON.stringify(agents));
+            localStorage.setItem('loggedInAgent', JSON.stringify(agent));
+
+            alert('השינויים נשמרו בהצלחה!');
+            displayAgentDetails();
+            editForm.style.display = 'none';
+            editButton.style.display = 'block';
+        });
+
+        window.onload = displayAgentDetails;
+    </script>
+</body>
+</html>

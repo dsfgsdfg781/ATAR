@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>דף בית</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="top-links">
+        <a href="signup.html">הרשמה</a>
+        <a href="login.html">התחברות</a>
+    </div>
+    <div id="profileLink" class="profile-link" style="display: none;">
+        <a href="#" id="editProfileLink">ערוך פרופיל</a>
+    </div>
+    <div class="container">
+        <img src="ShabakLogoText.svg.png" alt="שירות הביטחון הכללי" class="logo-large">
+        <nav>
+            <ul>
+                <li><a href="index.html">דף בית</a></li>
+                <li><a href="operations.html">מבצעים</a></li>
+                <li><a href="agents.html">סוכנים</a></li>
+               
+                <li><a href="chat.html">צ'אט</a></li>
+                <li><a href="update_operation.html">עדכון מבצע</a></li>
+            </ul>
+        </nav>
+        <h2 id="welcomeMessage"></h2>
+        <p>דף הבית שלנו מספק מידע על המבצעים, הסוכנים והמבוקשים הבולטים ביותר.</p>
+    </div>
+    <script>
+        const loggedInAgent = JSON.parse(localStorage.getItem('loggedInAgent'));
+
+        if (loggedInAgent) {
+            document.getElementById('welcomeMessage').textContent = `שלום סוכן ${loggedInAgent.firstName}!!!`;
+            document.getElementById('profileLink').style.display = 'block';
+            document.getElementById('editProfileLink').href = `agent_profile.html?index=${loggedInAgent.index}`;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>סוכנים</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="top-links">
+        <a href="signup.html">הרשמה</a>
+        <a href="login.html">התחברות</a>
+    </div>
+    <div class="profile-link" id="profileLink" style="display: none;">
+        <a href="#" id="editProfileLink">ערוך פרופיל</a>
+    </div>
+    <div class="container">
+        <img src="logo.png" alt="שירות חשאי" class="logo-small">
+        <nav>
+            <ul>
+                <li><a href="index.html">דף בית</a></li>
+                <li><a href="operations.html">מבצעים</a></li>
+                <li><a href="agents.html">סוכנים</a></li>
+                
+                <li><a href="chat.html">צ'אט</a></li>
+                <li><a href="update_operation.html">עדכון מבצע</a></li>
+            </ul>
+        </nav>
+        <h2>סוכנים</h2>
+        <ul id="agentsList"></ul>
+    </div>
+    <script>
+        function loadAgents() {
+            const agentsList = document.getElementById('agentsList');
+            const agents = JSON.parse(localStorage.getItem('agents')) || [];
+            
+            agents.forEach((agent, index) => {
+                const li = document.createElement('li');
+                const a = document.createElement('a');
+                a.textContent = `${agent.firstName} ${agent.lastName}`;
+                a.href = `agent_profile.html?index=${index}`;
+                li.appendChild(a);
+                agentsList.appendChild(li);
+            });
+        }
+
+        window.onload = function() {
+            loadAgents();
+            const loggedInAgent = JSON.parse(localStorage.getItem('loggedInAgent'));
+            if (loggedInAgent) {
+                document.getElementById('profileLink').style.display = 'block';
+                document.getElementById('editProfileLink').href = `agent_profile.html?index=${loggedInAgent.index}`;
+            }
+        };
+    </script>
+</body>
+</html>

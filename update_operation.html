@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>עדכון או הוספת מבצע</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <img src="ShabakLogoText.svg.png" alt="שירות הביטחון הכללי" class="logo-large">
+        <nav>
+            <ul>
+                <li><a href="index.html">דף בית</a></li>
+                <li><a href="operations.html">מבצעים</a></li>
+                <li><a href="agents.html">סוכנים</a></li>
+                <li><a href="chat.html">צ'אט</a></li>
+                <li><a href="update_operation.html">עדכון או הוספת מבצע</a></li>
+            </ul>
+        </nav>
+        <h2>עדכון או הוספת מבצע</h2>
+        <form id="updateForm">
+            <label for="operationName">שם מבצע:</label>
+            <input type="text" id="operationName" name="operationName">
+            <br><br>
+            <label for="newTitle">כותרת חדשה:</label>
+            <input type="text" id="newTitle" name="newTitle">
+            <br><br>
+            <label for="newDescription">תיאור חדש:</label>
+            <textarea id="newDescription" name="newDescription" rows="4"></textarea>
+            <br><br>
+            <label for="eliminated">חוסל:</label>
+            <textarea id="eliminated" name="eliminated" rows="2"></textarea>
+            <br><br>
+            <label for="toEliminate">צריך לחסל:</label>
+            <textarea id="toEliminate" name="toEliminate" rows="2"></textarea>
+            <br><br>
+            <label for="area">אזור:</label>
+            <textarea id="area" name="area" rows="2"></textarea>
+            <br><br>
+            <label for="weaponsNotWorking">כמה נשקים לא עובדים:</label>
+            <input type="number" id="weaponsNotWorking" name="weaponsNotWorking">
+            <br><br>
+            <label for="whichWeaponsNotWorking">איזה נשקים לא עובדים:</label>
+            <textarea id="whichWeaponsNotWorking" name="whichWeaponsNotWorking" rows="2"></textarea>
+            <br><br>
+            <label for="remaining">מה נשאר:</label>
+            <textarea id="remaining" name="remaining" rows="2"></textarea>
+            <br><br>
+            <label for="participants">מי השתתף במבצע עד עכשיו:</label>
+            <textarea id="participants" name="participants" rows="2"></textarea>
+            <br><br>
+            <label for="currentArea">מי נמצא באזור המבצע:</label>
+            <textarea id="currentArea" name="currentArea" rows="2"></textarea>
+            <br><br>
+            <label for="stage">באיזה שלב נמצאים במבצע:</label>
+            <textarea id="stage" name="stage" rows="2"></textarea>
+            <br><br>
+            <label for="wanted1">מבוקש 1:</label>
+            <input type="file" id="wanted1" name="wanted1" accept="image/*">
+            <br><br>
+            <label for="wanted2">מבוקש 2:</label>
+            <input type="file" id="wanted2" name="wanted2" accept="image/*">
+            <br><br>
+            <label for="wanted3">מבוקש 3:</label>
+            <input type="file" id="wanted3" name="wanted3" accept="image/*">
+            <br><br>
+            <label for="wanted4">מבוקש 4:</label>
+            <input type="file" id="wanted4" name="wanted4" accept="image/*">
+            <br><br>
+            <button type="submit">עדכן או הוסף מבצע</button>
+        </form>
+    </div>
+    <script>
+        document.getElementById('updateForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            var operationName = document.getElementById('operationName').value.trim();
+            var newTitle = document.getElementById('newTitle').value;
+            var newDescription = document.getElementById('newDescription').value;
+            var eliminated = document.getElementById('eliminated').value;
+            var toEliminate = document.getElementById('toEliminate').value;
+            var area = document.getElementById('area').value;
+            var weaponsNotWorking = document.getElementById('weaponsNotWorking').value;
+            var whichWeaponsNotWorking = document.getElementById('whichWeaponsNotWorking').value;
+            var remaining = document.getElementById('remaining').value;
+            var participants = document.getElementById('participants').value;
+            var currentArea = document.getElementById('currentArea').value;
+            var stage = document.getElementById('stage').value;
+
+            var wanted1 = document.getElementById('wanted1').files[0];
+            var wanted2 = document.getElementById('wanted2').files[0];
+            var wanted3 = document.getElementById('wanted3').files[0];
+            var wanted4 = document.getElementById('wanted4').files[0];
+
+            // פונקציה לשמירת תמונה ב-localStorage
+            function saveImage(file, key) {
+                if (file) {
+                    var reader = new FileReader();
+                    reader.onloadend = function() {
+                        localStorage.setItem(key, reader.result);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+
+            saveImage(wanted1, operationName + '-wanted1');
+            saveImage(wanted2, operationName + '-wanted2');
+            saveImage(wanted3, operationName + '-wanted3');
+            saveImage(wanted4, operationName + '-wanted4');
+
+            if (newTitle) localStorage.setItem(operationName + '-title', newTitle);
+            if (newDescription) localStorage.setItem(operationName + '-description', newDescription);
+            if (eliminated) localStorage.setItem(operationName + '-eliminated', eliminated);
+            if (toEliminate) localStorage.setItem(operationName + '-toEliminate', toEliminate);
+            if (area) localStorage.setItem(operationName + '-area', area);
+            if (weaponsNotWorking) localStorage.setItem(operationName + '-weaponsNotWorking', weaponsNotWorking);
+            if (whichWeaponsNotWorking) localStorage.setItem(operationName + '-whichWeaponsNotWorking', whichWeaponsNotWorking);
+            if (remaining) localStorage.setItem(operationName + '-remaining', remaining);
+            if (participants) localStorage.setItem(operationName + '-participants', participants);
+            if (currentArea) localStorage.setItem(operationName + '-currentArea', currentArea);
+            if (stage) localStorage.setItem(operationName + '-stage', stage);
+
+            alert('הנתונים עודכנו או נוספו בהצלחה!');
+        });
+    </script>
+</body>
+</html>

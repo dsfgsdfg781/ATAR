@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מבצעים</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <img src="ShabakLogoText.svg.png" alt="שירות הביטחון הכללי" class="logo-small">
+        <nav>
+            <ul>
+                <li><a href="index.html">דף בית</a></li>
+                <li><a href="operations.html">מבצעים</a></li>
+                <li><a href="agents.html">סוכנים</a></li>
+                <li><a href="chat.html">צ'אט</a></li>
+                <li><a href="update_operation.html">עדכון או הוספת מבצע</a></li>
+            </ul>
+        </nav>
+        <h2>מבצעים</h2>
+        <ul id="operationsList">
+            <!-- כאן יתווספו המבצעים המאוחסנים ב-localStorage -->
+        </ul>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const operationsList = document.getElementById('operationsList');
+            const keys = Object.keys(localStorage);
+            
+            keys.forEach(key => {
+                if (key.includes('-title')) {
+                    const operationName = key.split('-')[0];
+                    const title = localStorage.getItem(operationName + '-title');
+                    const listItem = document.createElement('li');
+                    listItem.innerHTML = `<a href="#">${title} (${operationName})</a>`;
+                    operationsList.appendChild(listItem);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
