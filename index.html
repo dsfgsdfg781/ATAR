@@ -7,13 +7,47 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="top-links">
-        <a href="signup.html">הרשמה</a>
-        <a href="login.html">התחברות</a>
+    <!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>אתר עם קישורים</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            background-color: #333;
+            color: #fff;
+            font-family: Arial, sans-serif;
+        }
+        .links {
+            margin: 20px;
+            display: flex;
+            justify-content: flex-end;
+        }
+        .links a {
+            margin-left: 15px;
+            text-decoration: none;
+            font-size: 18px; /* גודל טקסט התחלתי */
+            color: white; /* צבע לבן */
+        }
+        .links a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="links">
+        <a href="signup.html" id="signup">הרשמה</a>
+        <a href="login.html" id="login">התחברות</a>
+        <a href="profile.html" id="profile">פרופיל</a>
     </div>
-    <div id="profileLink" class="profile-link" style="display: none;">
-        <a href="#" id="editProfileLink">ערוך פרופיל</a>
-    </div>
+
+    <h1>ברוך הבא לאתר שלי</h1>
+    <p>תוכל להתחבר, להירשם או לעדכן את הפרופיל שלך באמצעות הקישורים למעלה.</p>
+</body>
+</html>
+
     <div class="container">
         <img src="ShabakLogoText.svg.png" alt="שירות הביטחון הכללי" class="logo-large">
         <nav>
